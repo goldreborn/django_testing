@@ -41,8 +41,8 @@ def test_redirects(anonymous_client: Client, path: str, args: tuple) -> None:
 
 
 @pytest.mark.parametrize(
-        'path', ('news:home', 'news:login', 'news:logout', 'news:signup')
-    )
+    'path', ('news:home', 'news:login', 'news:logout', 'news:signup')
+)
 def test_login_logout_registration_for_anonymous(
     anonymous_client: Client, path: str
 ) -> None:

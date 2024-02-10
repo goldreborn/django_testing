@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 
 from notes.tests.test_exampler import TestExampler

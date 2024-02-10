@@ -5,6 +5,7 @@ from news.models import News, Comment
 
 MAX_NEWS_PER_PAGE = 10
 
+
 def test_max_news_on_main(author_client: Client) -> None:
 
     assert len(author_client.get(
