@@ -54,7 +54,9 @@ class TestRoutes(TestExampler):
                     path = reverse(path)
                 self.assertRedirects(
                     self.client.get(path),
-                    expected_url=f'{reverse('users:login')}?next={path}'
+                    expected_url='{x}?next={y}'.format(
+                        x=reverse('users:login'), y=path
+                    )
                 )
 
     def test_registration_login_logout(self):

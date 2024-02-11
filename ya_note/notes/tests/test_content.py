@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from notes.tests.test_exampler import TestExampler
-from notes.models import Note
 
 User = get_user_model()
 
