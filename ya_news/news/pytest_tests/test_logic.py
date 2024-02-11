@@ -26,10 +26,10 @@ def test_anonymous_can_not_add_comment(
 
 
 def test_authenticated_can_add_comment(
-        admin_client: Client,
+        author_client: Client,
         news_pk: tuple
 ) -> None:
-    admin_client.post(reverse('news:detail', args=news_pk), data=test_comment)
+    author_client.post(reverse('news:detail', args=news_pk), data=test_comment)
 
     assert Comment.objects.count != 0
 
@@ -47,10 +47,10 @@ def test_if_comment_contains_bad_words() -> None:
     ),
 )
 def test_author_can_edit_delete_own_comments(
-        admin_client: Client, path: str, args: tuple,
+        author_client: Client, path: str, args: tuple,
         comment_form: CommentForm
 ) -> None:
-    assert admin_client.post(
+    assert author_client.post(
         reverse(path, args=args), data=comment_form
     ).status_code == 302
 
@@ -64,9 +64,9 @@ def test_author_can_edit_delete_own_comments(
     ),
 )
 def test_author_can_not_edit_delete_other_comments(
-        admin_client: Client, path: str, args: tuple,
+        author_client: Client, path: str, args: tuple,
         comment_form: CommentForm
 ) -> None:
-    assert admin_client.post(
+    assert author_client.post(
         reverse(path, args=args), data=comment_form
     ).status_code == 302

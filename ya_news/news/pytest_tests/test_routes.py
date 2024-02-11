@@ -32,9 +32,9 @@ def test_detail_is_accesable_to_anonymous(
     ),
 )
 def test_comment_edit_delete_accessable_for_author(
-    admin_client: Client, path: str, args: tuple
+    author_client: Client, path: str, args: tuple
 ) -> None:
-    assert admin_client.get(
+    assert author_client.get(
         reverse(path, args=args)
     ).status_code == HTTPStatus.OK
 
