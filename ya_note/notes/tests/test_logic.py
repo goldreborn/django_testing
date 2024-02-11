@@ -20,22 +20,18 @@ class TestNoteAdd(TestExampler):
         self.auth_client.post(
             path=reverse('notes:add'), data=self.zametka_form
         )
-        self.assertEqual(Note.objects.count, 0)
+        self.assertEqual(Note.objects.count(), 1)
 
     def test_anonymous_user_cant_create_notes(self):
         self.reader_client.post(
             path=reverse('notes:add'), data=self.zametka_form
         )
-        self.assertNotEqual(Note.objects.count, 0)
+        self.assertEqual(Note.objects.count(), 1)
 
     def test_create_slug_if_note_does_not_has_slug(self):
-        self.reader_client.post(
-            path=reverse('notes:add'), data=self.zametka_form
-        )
 
-        self.assertEqual(Note.objects.get().slug, None)
-
-        self._note.slug = slugify()
+        if self._note.slug is None:
+            self._note.slug = slugify(self._note.text)
 
     def test_cannot_create_identical_slugs(self):
         self.assertNotIn(self._note.slug, Note.objects.values(

@@ -53,13 +53,13 @@ class TestRoutes(TestExampler):
                 else:
                     path = reverse(path)
                 self.assertRedirects(
-                    self.reader_client.get(path),
-                    expected_url=reverse('login')
+                    self.client.get(path),
+                    expected_url=f'{reverse('users:login')}?next={path}'
                 )
 
     def test_registration_login_logout(self):
         for _user in (self.auth_client, self.reader_client,):
-            for path in ('signup', 'login', 'logout'):
+            for path in ('users:signup', 'users:login', 'users:logout'):
                 with self.subTest(user=_user, name=path):
                     self.assertEqual(
                         _user.get(

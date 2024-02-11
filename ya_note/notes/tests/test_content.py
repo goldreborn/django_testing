@@ -20,7 +20,11 @@ class TestContent(TestExampler):
 
     def test_users_notes_not_in_other_users_notes(self):
 
-        self.assertNotIn(self._note, Note.objects.all())
+        self.assertNotIn(
+            self._note, self.auth_client.get(
+                reverse('notes:list')
+            ).context.pop()
+        )
 
     def test_add_edit_form(self):
 
