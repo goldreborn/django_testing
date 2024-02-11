@@ -1,7 +1,6 @@
 from django.urls import reverse
 from django.test.client import Client
 import pytest
-from pytest_django.asserts import assertNotContains
 from news.models import News, Comment
 
 MAX_NEWS_PER_PAGE = 10
@@ -24,6 +23,7 @@ def test_news_order() -> None:
 def test_comments_order() -> None:
 
     assert Comment.objects.all() is not sorted
+
 
 @pytest.mark.django_db
 def test_anonymous_has_no_comment_form(
