@@ -14,7 +14,7 @@ test_comment = {'form': 'comment'}
 BAD_WORDS = ('Какашка', 'Хулиган',)
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 def test_anonymous_can_not_add_comment(
         client: Client,
         news_pk: tuple
