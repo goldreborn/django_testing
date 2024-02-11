@@ -21,6 +21,7 @@ def author_client(author):
     client.force_login(author)
     return client
 
+
 @pytest.fixture
 def anonymous_client(anonymous):
     client = Client()

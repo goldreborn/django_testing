@@ -54,7 +54,9 @@ def test_redirects(client: Client, path: str, args: tuple) -> None:
         url = reverse(path)
 
     assertRedirects(
-        client.get(url), expected_url=f'{reverse('users:login')}?next={url}'
+        client.get(url), expected_url='{x}?next={y}'.format(
+            x=reverse('users:login'), y=url
+        )
     )
 
 
