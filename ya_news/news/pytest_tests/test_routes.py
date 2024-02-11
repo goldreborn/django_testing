@@ -6,26 +6,24 @@ from pytest_lazyfixture import lazy_fixture
 import pytest
 
 
-def test_home_is_accessable_to_anonymous(anonymous_client: Client) -> None:
-    assert anonymous_client.get(
+@pytest.mark.django_db
+def test_home_is_accessable_to_anonymous(client: Client) -> None:
+    assert client.get(
         reverse('news:home')
     ).status_code == HTTPStatus.OK
 
 
-def test_detail_is_accesable_to_anonymous(anonymous_client: Client) -> None:
-    assert anonymous_client.get(
-        reverse('news:detail')
+@pytest.mark.django_db
+def test_detail_is_accesable_to_anonymous(
+        client: Client,
+        news_pk: tuple
+) -> None:
+    assert client.get(
+        reverse('news:detail', args=news_pk)
     ).status_code == HTTPStatus.OK
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('path', ('news:delete', 'news:edit'))
-def test_comment_edit_delete_accessable_for_author(
-    author_client: Client, path: str
-) -> None:
-    assert author_client.get(reverse(path)).status_code == HTTPStatus.OK
-
-
 @pytest.mark.parametrize(
     'path, args',
     (
@@ -33,17 +31,39 @@ def test_comment_edit_delete_accessable_for_author(
         ('news:delete', lazy_fixture('comment_pk')),
     ),
 )
-def test_redirects(anonymous_client: Client, path: str, args: tuple) -> None:
+def test_comment_edit_delete_accessable_for_author(
+    admin_client: Client, path: str, args: tuple
+) -> None:
+    assert admin_client.get(
+        reverse(path, args=args)
+    ).status_code == HTTPStatus.OK
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'path, args',
+    (
+        ('news:edit', lazy_fixture('comment_pk')),
+        ('news:delete', lazy_fixture('comment_pk')),
+    ),
+)
+def test_redirects(client: Client, path: str, args: tuple) -> None:
+    if args is not None:
+        url = f'{reverse(path, args=args)}'
+    else:
+        url = reverse(path)
+
     assertRedirects(
-        response=anonymous_client.get(reverse(path, args=args)),
-        expected_url=reverse('login')
+        client.get(url), expected_url=f'{reverse('users:login')}?next={url}'
     )
 
 
 @pytest.mark.parametrize(
-    'path', ('news:home', 'news:login', 'news:logout', 'news:signup')
+    'path', ('users:login', 'users:logout', 'users:signup')
 )
 def test_login_logout_registration_for_anonymous(
-    anonymous_client: Client, path: str
+    client: Client, path: str
 ) -> None:
-    assert anonymous_client.get(reverse(path)).status_code == HTTPStatus.OK
+    assert client.get(
+        reverse(path)
+    ).status_code == HTTPStatus.OK

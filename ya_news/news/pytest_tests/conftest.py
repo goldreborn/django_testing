@@ -16,13 +16,16 @@ def anonymous(django_user_model) -> object:
 
 
 @pytest.fixture
-def author_client(author: Client) -> None:
-    return Client().force_login(author)
-
+def author_client(author):
+    client = Client()
+    client.force_login(author)
+    return client
 
 @pytest.fixture
-def anonymous_client(anonymous: Client) -> None:
-    return Client().force_login(anonymous)
+def anonymous_client(anonymous):
+    client = Client()
+    client.force_login(anonymous)
+    return client
 
 
 @pytest.fixture
@@ -30,7 +33,7 @@ def news() -> News:
     return News.objects.create(
         title='Где свет?!',
         text='Абэма продолжает выкручивать лампочки в подъезде',
-        pub_date=datetime.today()
+        date=datetime.today()
     )
 
 
