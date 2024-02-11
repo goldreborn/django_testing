@@ -14,6 +14,7 @@ test_comment = {'form': 'comment'}
 BAD_WORDS = ('Какашка', 'Хулиган',)
 
 
+@pytest.mark.django_db(transaction=True)
 def test_anonymous_can_not_add_comment(
         client: Client,
         news_pk: tuple
@@ -38,7 +39,7 @@ def test_if_comment_contains_bad_words() -> None:
     assert not any([x == test_comment['form'] for x in BAD_WORDS])
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     'path, args',
     (
@@ -55,7 +56,7 @@ def test_author_can_edit_delete_own_comments(
     ).status_code == 302
 
 
-@pytest.mark.django_db(transaction=True)
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     'path, args',
     (
