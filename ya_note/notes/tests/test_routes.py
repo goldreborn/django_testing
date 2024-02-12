@@ -11,6 +11,7 @@ User = get_user_model()
 class TestRoutes(TestExampler):
 
     def test_home_page(self):
+        """Тест домашней страницы"""
         self.assertEqual(
             self.reader_client.get(
                 reverse('notes:home')
@@ -18,40 +19,42 @@ class TestRoutes(TestExampler):
         )
 
     def test_authenticated_can_see_notes_done_add(self):
-        for path in ('notes:list', 'notes:success', 'notes:add'):
+        """Тест доступа заметок, удачной страницы, добавления заметки"""
+        for path in (
+            self.notes_list_url, self.success_url, self.add_note_url,
+        ):
             with self.subTest(user=self._author, name=path):
                 self.assertEqual(
                     self.auth_client.get(
-                        reverse(path)
+                        path
                     ).status_code, HTTPStatus.OK
                 )
 
     def test_access_to_detail_change_delete(self):
+        """Тест доступа к детальной заметке, изменению или удалению"""
         for _user, status in (
             (self.auth_client, HTTPStatus.OK),
             (self.reader_client, HTTPStatus.NOT_FOUND),
         ):
-            for path in ('notes:detail', 'notes:edit', 'notes:delete',):
+            for path in (
+                self.note_detail_url, self.edit_note_url, self.delete_note_url,
+            ):
                 with self.subTest(user=_user, name=path):
                     self.assertEqual(
                         _user.get(
-                            reverse(path, kwargs={'slug': self._note.slug})
+                            path
                         ).status_code, status
                     )
 
     def test_notes_paths_redirect_to_login(self):
-
+        """Тест редиректа на логин"""
         notes_paths = (
-            'notes:success', 'notes:list', 'notes:add',
-            'notes:edit', 'notes:delete', 'notes:detail'
+            self.success_url, self.notes_list_url, self.add_note_url,
+            self.edit_note_url, self.delete_note_url, self.note_detail_url,
         )
 
         for path in notes_paths:
             with self.subTest(name=path):
-                if 'edit' in path or 'delete' in path or 'detail' in path:
-                    path = reverse(path, kwargs={'slug': self._note.slug})
-                else:
-                    path = reverse(path)
                 self.assertRedirects(
                     self.client.get(path),
                     expected_url='{x}?next={y}'.format(
@@ -60,11 +63,14 @@ class TestRoutes(TestExampler):
                 )
 
     def test_registration_login_logout(self):
+        """Тест доступности страниц регистрации, логина, логаута для всех"""
         for _user in (self.auth_client, self.reader_client,):
-            for path in ('users:signup', 'users:login', 'users:logout'):
+            for path in (
+                self.login_url, self.logout_url, self.signup_url
+            ):
                 with self.subTest(user=_user, name=path):
                     self.assertEqual(
                         _user.get(
-                            reverse(path)
+                            path
                         ).status_code, HTTPStatus.OK
                     )

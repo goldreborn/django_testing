@@ -1,5 +1,6 @@
-from django.test.client import Client
 import pytest
+from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
+from django.test.client import Client
 from datetime import datetime
 
 from news.models import News, Comment
@@ -19,13 +20,6 @@ def anonymous(django_user_model) -> object:
 def author_client(author):
     client = Client()
     client.force_login(author)
-    return client
-
-
-@pytest.fixture
-def anonymous_client(anonymous):
-    client = Client()
-    client.force_login(anonymous)
     return client
 
 
@@ -60,10 +54,7 @@ def comment(news: News, author: Client) -> Comment:
 @pytest.fixture
 def comment_form(news: News) -> dict:
     return {
-        'news': news,
-        'author': 'автор',
-        'text': 'текст',
-        'created': datetime.today()
+        'text': 'текст'
     }
 
 

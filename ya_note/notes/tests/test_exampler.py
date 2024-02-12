@@ -25,6 +25,11 @@ class TestExampler(TestCase):
         cls.reader_client = Client()
         cls.reader_client.force_login(cls._reader)
 
+        cls.login_url = reverse('users:login')
+        cls.signup_url = reverse('users:signup')
+        cls.logout_url = reverse('users:logout')
+        cls.add_note_url = reverse('notes:add')
+        cls.success_url = reverse('notes:success')
         cls.delete_note_url = reverse(
             'notes:delete', kwargs={'slug': cls._note.slug}
         )
