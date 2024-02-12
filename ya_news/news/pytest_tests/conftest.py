@@ -2,7 +2,6 @@ import pytest
 from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 from django.test.client import Client
 from datetime import datetime
-
 from news.models import News, Comment
 
 
@@ -39,6 +38,22 @@ def news_form() -> dict:
         'text': 'текст',
         'date': 'дата'
     }
+
+
+@pytest.fixture
+def create_news() -> None:
+    News.objects.bulk_create(
+        News(title=f'Новость {index}', text='Просто текст.')
+        for index in range(NEWS_COUNT_ON_HOME_PAGE + 1)
+    )
+
+
+@pytest.fixture
+def create_comments() -> None:
+    Comment.objects.bulk_create(
+        Comment(title=f'Комментарий {index}', text='Просто комментарий.')
+        for index in range(NEWS_COUNT_ON_HOME_PAGE + 1)
+    )
 
 
 @pytest.fixture
