@@ -27,6 +27,7 @@ def test_anonymous_can_not_add_comment(
     assert Comment.objects.count() == 0
 
 
+@pytest.mark.django_db
 def test_authenticated_can_add_comment(
         author_client: Client,
         news_pk: tuple
