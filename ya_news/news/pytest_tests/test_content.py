@@ -13,6 +13,7 @@ def test_max_news_on_main(author_client: Client) -> None:
     ).context.get(key='object_list')) <= NEWS_COUNT_ON_HOME_PAGE
 
 
+@pytest.mark.django_db
 def test_news_order(client):
     all_dates = [
         news.date for news in client.get(

@@ -33,7 +33,7 @@ def test_comment_edit_delete_accessable_for_author(
 )
 def test_redirects(client: Client, path: str, args: tuple) -> None:
     """Тест редиректов"""
-    url = reverse(path)
+    url = reverse(path, args=args)
 
     assertRedirects(
         client.get(url), expected_url='{x}?next={y}'.format(

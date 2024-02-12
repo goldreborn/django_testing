@@ -3,15 +3,19 @@ from django.contrib.auth import get_user_model
 from django.test import Client
 from django.urls import reverse
 from pytest_lazyfixture import lazy_fixture
-from pytest_django.asserts import assertFormError
+from pytest_django.asserts import assertFormError, assertRedirects
 from news.models import Comment
 from news.forms import CommentForm
+from django.utils import timezone
 
 from news.forms import BAD_WORDS, WARNING
 
 User = get_user_model()
 
-test_comment = {'form': 'comment'}
+test_comment = {
+    'form': 'comment',
+    'author': 'sdasd',
+    'created': timezone.now()}
 
 
 @pytest.mark.django_db
@@ -30,24 +34,32 @@ def test_anonymous_can_not_add_comment(
 @pytest.mark.django_db
 def test_authenticated_can_add_comment(
         author_client: Client,
-        news_pk: tuple
+        news_pk: tuple,
+        comment_form,
+        author
 ) -> None:
     """Тест автор может добавить комментарий"""
-    author_client.post(reverse('news:detail', args=news_pk), data=test_comment)
+    url = reverse('news:detail', args=news_pk)
 
-    new_comment = Comment.objects.get()
-    new_comment.refresh_from_db()
+    response = author_client.post(url, data=comment_form)
 
-    assert Comment.objects.count == 1
-    assert new_comment.news.pk == news_pk
-    assert new_comment.text == test_comment['form']
+    assertRedirects(response, f'{url}#comments')
+
+    comments_count = Comment.objects.count()
+
+    assert comments_count == 1
+
+    comment = Comment.objects.get()
+
+    assert comment.text == comment_form['text']
+    assert comment.author == author
 
 
-def test_if_comment_contains_bad_words(author_client: Client) -> None:
+def test_if_comment_contains_bad_words(author_client: Client, news_pk) -> None:
     """Тест на плохие слова в комментарии"""
     assertFormError(
         author_client.post(
-            reverse('news:add'), data={
+            reverse('news:detail', args=news_pk), data={
                 'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'
             }
         ),
