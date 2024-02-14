@@ -46,11 +46,11 @@ class TestNoteLogic(TestExampler):
 
     def test_is_slug_empty(self):
         """Тест пустой ли слаг"""
-        url = self.add_note_url
-
         self.zametka_form.pop('slug')
 
-        response = self.auth_client.post(url, self.zametka_form)
+        response = self.auth_client.post(
+            self.add_note_url, self.zametka_form
+        )
 
         self.assertRedirects(response, self.success_url)
 

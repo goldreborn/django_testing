@@ -10,14 +10,6 @@ User = get_user_model()
 
 class TestRoutes(TestExampler):
 
-    def test_home_page(self):
-        """Тест домашней страницы"""
-        self.assertEqual(
-            self.reader_client.get(
-                reverse('notes:home')
-            ).status_code, HTTPStatus.OK
-        )
-
     def test_authenticated_can_see_notes_done_add(self):
         """Тест доступа заметок, удачной страницы, добавления заметки"""
         for path in (
@@ -63,10 +55,14 @@ class TestRoutes(TestExampler):
                 )
 
     def test_registration_login_logout(self):
-        """Тест доступности страниц регистрации, логина, логаута для всех"""
-        for _user in (self.auth_client, self.reader_client,):
+        """
+        Тест доступности страниц домашняя, регистрация,
+        логин, логаут для всех
+        """
+        for _user in (self.auth_client, self.client,):
             for path in (
-                self.login_url, self.logout_url, self.signup_url
+                self.login_url, self.logout_url,
+                self.signup_url, self.home_url
             ):
                 with self.subTest(user=_user, name=path):
                     self.assertEqual(

@@ -25,6 +25,7 @@ class TestExampler(TestCase):
         cls.reader_client = Client()
         cls.reader_client.force_login(cls._reader)
 
+        cls.home_url = reverse('notes:home')
         cls.login_url = reverse('users:login')
         cls.signup_url = reverse('users:signup')
         cls.logout_url = reverse('users:logout')
@@ -43,6 +44,5 @@ class TestExampler(TestCase):
         cls.zametka_form = {
             'title': 'Zametka_title',
             'text': 'Zametka_text',
-            'slug': 'slugger',
-            'author': 'asdads'
+            'slug': 'slugger'
         }
