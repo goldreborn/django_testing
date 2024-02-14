@@ -40,3 +40,9 @@ class TestExampler(TestCase):
         cls.note_detail_url = reverse(
             'notes:detail', kwargs={'slug': cls._note.slug}
         )
+        cls.zametka_form = {
+            'title': 'Zametka_title',
+            'text': 'Zametka_text',
+            'slug': 'slugger',
+            'author': 'asdads'
+        }

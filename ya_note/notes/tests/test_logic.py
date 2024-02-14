@@ -4,74 +4,65 @@ from pytils.translit import slugify
 
 from notes.tests.test_exampler import TestExampler
 from notes.models import Note
+from notes.forms import WARNING
 
-
-User = get_user_model()
 
 
 class TestNoteLogic(TestExampler):
 
-    zametka_form = {
-        'title': 'Zametka',
-        'text': 'zametka text',
-        'slug': 'zametka_slug'
-    }
-
     def test_author_can_add_note(self):
         """Тест может ли автор добавить заметку"""
-        self.assertRedirects(
-            self.auth_client.get(
-                self.success_url, data=self.zametka_form
-            )
+        response = self.auth_client.post(
+            self.add_note_url, data=self.zametka_form
         )
-        self.assertEqual(Note.objects.count(), 1)
+        self.assertRedirects(response, expected_url=self.success_url)
+        self.assertEqual(Note.objects.count(), 2)
 
-        new_note = Note.objects.get()
+        new_note = Note.objects.last()
 
         self.assertEqual(new_note.title, self.zametka_form['title'])
         self.assertEqual(new_note.text, self.zametka_form['text'])
         self.assertEqual(new_note.slug, self.zametka_form['slug'])
-        self.assertIs(new_note.author, self._author)
 
-    def test_anonymous_can_add_note(self):
+    def test_anonymous_cant_add_note(self):
         """Тест может ли аноним добавить заметку"""
         self.assertRedirects(
-            self.reader_client.post(
+            response=self.client.post(
                 self.add_note_url, data=self.zametka_form
             ),
-            f'{self.login_url}?next={self.add_note_url}'
+            expected_url=f'{self.login_url}?next={self.add_note_url}'
         )
-        self.assertEqual(
-            Note.objects.count(), 0
-        )
+        self.assertEqual(Note.objects.count(), 1)
 
     def test_slug_uniqueness(self):
         """Тест уникальности слага"""
         self.zametka_form['slug'] = self._note.slug
-
-        self.assertFormError(
-            self.auth_client.post(
-                self.add_note_url, data=self.zametka_form
-            ),
-            'form', 'slug', errors=(
-                self._note.slug + Warning(
-                    'Found not unique slug'
-                )
-            )
+        response = self.auth_client.post(
+            self.add_note_url, data=self.zametka_form
         )
+        self.assertFormError(
+            response, 'form', 'slug', errors=(self._note.slug + WARNING)
+        )
+
         self.assertEqual(Note.objects.count(), 1)
 
     def test_is_slug_empty(self):
         """Тест пустой ли слаг"""
-        self.assertRedirects(
-            self.auth_client.post(
-                self.add_note_url, data=self.zametka_form
-            ), self.add_note_url
-        )
-        self.assertEqual(Note.objects.count(), 1)
-        self.assertEqual(
-            Note.objects.get().slug, slugify(self.zametka_form['title'])
-        )
+        url = self.add_note_url
+
+        self.zametka_form.pop('slug')
+
+        response = self.auth_client.post(url, self.zametka_form)
+
+        self.assertRedirects(response, self.success_url)
+
+        self.assertEqual(Note.objects.count(), 2)
+
+        new_note = Note.objects.last()
+
+        expected_slug = slugify(self.zametka_form['title'])
+
+        self.assertEqual(new_note.slug, expected_slug)
 
     def test_author_can_edit_own_notes(self):
         """Тест автор может изменять собственные заметки"""
@@ -84,7 +75,7 @@ class TestNoteLogic(TestExampler):
 
         self.assertEqual(self._note.title, self.zametka_form['title'])
         self.assertEqual(self._note.text, self.zametka_form['text'])
-        self._note.slug, self.zametka_form['slug']
+        self.assertEqual(self._note.slug, self.zametka_form['slug'])
 
     def test_author_can_delete_own_notes(self):
         """Тест автор может удалять собственные заметки"""
