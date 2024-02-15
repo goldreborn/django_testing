@@ -15,13 +15,13 @@ from http import HTTPStatus
     ),
 )
 def test_comment_edit_delete_access_for_authorized_user(
-    admin_client: Client, path: str, args: tuple
+    author_client: Client, path: str, args: tuple
 ) -> None:
     """
     Тест доступности удаления и изменения комментария
     для авторизованного клиента
     """
-    assert admin_client.get(
+    assert author_client.get(
         reverse(path, args=args)
     ).status_code == HTTPStatus.FOUND
 
