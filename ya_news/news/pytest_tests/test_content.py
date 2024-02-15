@@ -1,8 +1,8 @@
 import pytest
-from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 from django.urls import reverse
 from django.test.client import Client
 
+from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 from news.forms import CommentForm
 
 
@@ -14,18 +14,19 @@ def test_max_news_on_main(author_client: Client) -> None:
 
 
 @pytest.mark.django_db
-def test_news_order(client):
+def test_news_order(client: Client) -> None:
+    """Тест есть ли сортировки новостей"""
     all_dates = [
         news.date for news in client.get(
             reverse('news:home')
-        ).context['object_list']
+        ).context.get('object_list')
     ]
     assert all_dates == sorted(all_dates, reverse=True)
 
 
 @pytest.mark.django_db
-def test_comments_order(client, news_pk):
-
+def test_comments_order(client: Client, news_pk: int) -> None:
+    """Тест есть ли сортировки комментариев"""
     response = client.get(reverse('news:detail', args=news_pk))
 
     assert 'news' in response.context
@@ -43,7 +44,7 @@ def test_anonymous_has_no_comment_form(
         news_pk: tuple,
         client: Client
 ) -> None:
-    """Тест аноним не имеет формы"""
+    """Тест аноним не имеет формы отправки комментария"""
     assert 'form' not in client.get(
         reverse('news:detail', args=news_pk)
     ).context
@@ -54,7 +55,10 @@ def test_author_has_comment_form(
         news_pk: tuple,
         author_client: Client
 ) -> None:
-    """Тест автор имеет форму"""
+    """
+    Тест автор имеет форму отправки комментария
+    и она класса CommentForm
+    """
     response = author_client.get(reverse('news:detail', args=news_pk))
 
     assert 'form' in response.context

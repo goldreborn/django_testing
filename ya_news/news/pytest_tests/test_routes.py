@@ -14,13 +14,55 @@ from pytest_lazyfixture import lazy_fixture
         ('news:delete', lazy_fixture('comment_pk')),
     ),
 )
-def test_comment_edit_delete_accessable_for_author(
-    author_client: Client, path: str, args: tuple
+@pytest.mark.parametrize(
+    'user_type, status',
+    (
+        (
+            (lazy_fixture('author_client'), HTTPStatus.OK),
+            (lazy_fixture('client'), 302)
+        )
+    )
+)
+def test_comment_edit_is_accessable_for_author_but_not_anonymous(
+    user_type: Client, status: HTTPStatus | int,
+    path: str, args: tuple
 ) -> None:
-    """Тест доступности изменения, удаления комментария"""
-    assert author_client.get(
+    """
+    Тест доступности изменения комментария для автора,
+    но не для анонима
+    """
+    assert user_type.get(
         reverse(path, args=args)
-    ).status_code == HTTPStatus.OK
+    ).status_code == status
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    'path, args',
+    (
+        ('news:edit', lazy_fixture('comment_pk')),
+        ('news:delete', lazy_fixture('comment_pk')),
+    ),
+)
+@pytest.mark.parametrize(
+    'user_type, status',
+    (
+        (
+            (lazy_fixture('author_client'), HTTPStatus.OK),
+            (lazy_fixture('client'), 302)
+        )
+    )
+)
+def test_comment_delete_is_accessable_for_author_but_not_anonymous(
+    user_type: Client, status: HTTPStatus | int,
+    path: str, args: tuple
+) -> None:
+    """Тест доступности удаления комментария для автора,
+    но  не для анонима
+    """
+    assert user_type.get(
+        reverse(path, args=args)
+    ).status_code == status
 
 
 @pytest.mark.django_db
@@ -44,20 +86,19 @@ def test_redirects(client: Client, path: str, args: tuple) -> None:
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'path', ('users:login', 'users:logout', 'users:signup')
+    'path, args',
+    (
+        ('users:login', None),
+        ('users:logout', None),
+        ('users:signup', None),
+        ('news:detail', lazy_fixture('news_pk')),
+        ('news:home', None),
+    )
 )
 def test_login_logout_registration_for_anonymous(
-    client: Client, path: str, news_pk: tuple
+    client: Client, path: str, args: tuple
 ) -> None:
     """Тест регистрации, логина, логаута для анонима"""
     assert client.get(
-        reverse(path)
-    ).status_code == HTTPStatus.OK
-
-    assert client.get(
-        reverse('news:detail', args=news_pk)
-    ).status_code == HTTPStatus.OK
-
-    assert client.get(
-        reverse('news:home')
+        reverse(path, args=args)
     ).status_code == HTTPStatus.OK

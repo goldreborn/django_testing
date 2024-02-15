@@ -1,18 +1,14 @@
 import pytest
-from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 from django.test.client import Client
 from datetime import datetime
+
+from yanews.settings import NEWS_COUNT_ON_HOME_PAGE
 from news.models import News, Comment
 
 
 @pytest.fixture
 def author(django_user_model) -> object:
     return django_user_model.objects.create(username='Автор')
-
-
-@pytest.fixture
-def anonymous(django_user_model) -> object:
-    return django_user_model.objects.create(username='Анон')
 
 
 @pytest.fixture
@@ -29,15 +25,6 @@ def news() -> News:
         text='Абэма продолжает выкручивать лампочки в подъезде',
         date=datetime.today()
     )
-
-
-@pytest.fixture
-def news_form() -> dict:
-    return {
-        'title': 'заголовок',
-        'text': 'текст',
-        'date': 'дата'
-    }
 
 
 @pytest.fixture
