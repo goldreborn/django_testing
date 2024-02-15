@@ -23,7 +23,7 @@ def test_comment_edit_delete_access_for_authorized_user(
     """
     assert author_client.get(
         reverse(path, args=args)
-    ).status_code == HTTPStatus.FOUND
+    ).status_code == HTTPStatus.OK
 
 
 @pytest.mark.django_db
