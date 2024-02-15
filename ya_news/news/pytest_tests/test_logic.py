@@ -89,51 +89,30 @@ def test_author_can_edit_own_comments(
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'path, args',
-    (
-        ('news:delete', lazy_fixture('comment_pk')),
-    ),
-)
 def test_author_can_delete_own_comments(
-        author_client: Client, path: str, args: tuple,
-        comment_form: CommentForm
+        author_client: Client, comment_form: CommentForm, comment_pk: tuple
 ) -> None:
     """Тест автор может удалять свои комментарии"""
     assert author_client.post(
-        reverse(path, args=args), data=comment_form
+        reverse('news:delete', args=comment_pk), data=comment_form
     ).status_code == HTTPStatus.FOUND
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'path, args',
-    (
-        ('news:edit', lazy_fixture('comment_pk')),
-    ),
-)
 def test_author_can_not_edit_other_comments(
-        author_client: Client, path: str, args: tuple,
-        comment_form: CommentForm
+        author_client: Client, comment_form: CommentForm, comment_pk: tuple
 ) -> None:
     """Тест автор не может изменять чужие комментарии"""
     assert author_client.post(
-        reverse(path, args=args), data=comment_form
+        reverse('news:edit', args=comment_pk), data=comment_form
     ).status_code == HTTPStatus.FOUND
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'path, args',
-    (
-        ('news:delete', lazy_fixture('comment_pk')),
-    ),
-)
 def test_author_can_not_delete_other_comments(
-        author_client: Client, path: str, args: tuple,
-        comment_form: CommentForm
+        author_client: Client, comment_form: CommentForm, comment_pk: tuple
 ) -> None:
     """Тест автор не может удалять чужие комментарии"""
     assert author_client.post(
-        reverse(path, args=args), data=comment_form
+        reverse('news:delete', args=comment_pk), data=comment_form
     ).status_code == HTTPStatus.FOUND

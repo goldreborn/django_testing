@@ -31,7 +31,7 @@ class TestContent(TestExampler):
     def test_add_edit_form(self):
         """
         Тест присутствия формы заметки автора в контексте и форме form
-        и является ли форма классом
+        и является ли форма ожидаемым классом
         """
         for path in (
             self.add_note_url, self.edit_note_url,
