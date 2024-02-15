@@ -15,7 +15,7 @@ def test_max_news_on_main(author_client: Client) -> None:
 
 @pytest.mark.django_db
 def test_news_order(client: Client) -> None:
-    """Тест есть ли сортировки новостей"""
+    """Тест отсортированы ли новости по дате на главной странице"""
     all_dates = [
         news.date for news in client.get(
             reverse('news:home')
@@ -26,7 +26,10 @@ def test_news_order(client: Client) -> None:
 
 @pytest.mark.django_db
 def test_comments_order(client: Client, news_pk: int) -> None:
-    """Тест есть ли сортировки комментариев"""
+    """
+    Тест отсортированы ли комментарии по дате
+    на странице отдельной новости
+    """
     response = client.get(reverse('news:detail', args=news_pk))
 
     assert 'news' in response.context
@@ -57,7 +60,7 @@ def test_author_has_comment_form(
 ) -> None:
     """
     Тест автор имеет форму отправки комментария
-    и она класса CommentForm
+    и она совпадает со ожидаемым классом
     """
     response = author_client.get(reverse('news:detail', args=news_pk))
 

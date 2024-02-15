@@ -1,40 +1,9 @@
 import pytest
-from http import HTTPStatus
 from django.urls import reverse
 from django.test.client import Client
 from pytest_django.asserts import assertRedirects
 from pytest_lazyfixture import lazy_fixture
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize(
-    'path, args',
-    (
-        ('news:edit', lazy_fixture('comment_pk')),
-        ('news:delete', lazy_fixture('comment_pk')),
-    ),
-)
-@pytest.mark.parametrize(
-    'user_type, status',
-    (
-        (
-            (lazy_fixture('author_client'), 200),
-            (lazy_fixture('client'), 302)
-        )
-    )
-)
-def test_comment_edit_is_accessable_for_author_but_not_anonymous(
-    user_type: Client, status: int,
-    path: str, args: tuple
-) -> None:
-    """
-    Тест доступности изменения комментария для автора,
-    но не для анонима
-    """
-    assert user_type.get(
-        reverse(path, args=args)
-    ).status_code == status
-
+from http import HTTPStatus
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
@@ -44,25 +13,16 @@ def test_comment_edit_is_accessable_for_author_but_not_anonymous(
         ('news:delete', lazy_fixture('comment_pk')),
     ),
 )
-@pytest.mark.parametrize(
-    'user_type, status',
-    (
-        (
-            (lazy_fixture('author_client'), 200),
-            (lazy_fixture('client'), 302)
-        )
-    )
-)
-def test_comment_delete_is_accessable_for_author_but_not_anonymous(
-    user_type: Client, status: int,
-    path: str, args: tuple
+def test_comment_edit_delete_access_for_authorized_user(
+    admin_client: Client, path: str, args: tuple
 ) -> None:
-    """Тест доступности удаления комментария для автора,
-    но  не для анонима
     """
-    assert user_type.get(
+    Тест доступности удаления и изменения комментария
+    для авторизованного клиента
+    """
+    assert admin_client.get(
         reverse(path, args=args)
-    ).status_code == status
+    ).status_code == HTTPStatus.FOUND
 
 
 @pytest.mark.django_db

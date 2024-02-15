@@ -1,5 +1,5 @@
-from http import HTTPStatus
 from pytils.translit import slugify
+from http import HTTPStatus
 
 from notes.tests.test_exampler import TestExampler
 from notes.models import Note

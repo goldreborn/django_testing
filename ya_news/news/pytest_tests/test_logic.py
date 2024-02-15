@@ -5,6 +5,7 @@ from django.urls import reverse
 from pytest_lazyfixture import lazy_fixture
 from pytest_django.asserts import assertFormError, assertRedirects
 from django.utils import timezone
+from http import HTTPStatus
 
 from news.models import Comment, News
 from news.forms import CommentForm
@@ -71,20 +72,20 @@ def test_if_comment_contains_bad_words(author_client: Client, news_pk) -> None:
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize(
-    'path, args',
-    (
-        ('news:edit', lazy_fixture('comment_pk')),
-    ),
-)
 def test_author_can_edit_own_comments(
-        author_client: Client, path: str, args: tuple,
-        comment_form: CommentForm
+        author_client: Client, comment_pk: tuple,
+        comment_form: CommentForm, news_pk: tuple
 ) -> None:
     """Тест автор может изменять свои комментарии"""
-    assert author_client.post(
-        reverse(path, args=args), data=comment_form
-    ).status_code == 302
+    response = author_client.post(
+        reverse('news:edit', args=comment_pk), data=comment_form
+    ).status_code == HTTPStatus.FOUND
+
+    assertRedirects(response, reverse('news:detail', args=news_pk))
+
+    new_comment = Comment.objects.get()
+
+    assert new_comment.text == comment_form['text']
 
 
 @pytest.mark.django_db
@@ -101,7 +102,7 @@ def test_author_can_delete_own_comments(
     """Тест автор может удалять свои комментарии"""
     assert author_client.post(
         reverse(path, args=args), data=comment_form
-    ).status_code == 302
+    ).status_code == HTTPStatus.FOUND
 
 
 @pytest.mark.django_db
@@ -118,7 +119,7 @@ def test_author_can_not_edit_other_comments(
     """Тест автор не может изменять чужие комментарии"""
     assert author_client.post(
         reverse(path, args=args), data=comment_form
-    ).status_code == 302
+    ).status_code == HTTPStatus.FOUND
 
 
 @pytest.mark.django_db
@@ -135,4 +136,4 @@ def test_author_can_not_delete_other_comments(
     """Тест автор не может удалять чужие комментарии"""
     assert author_client.post(
         reverse(path, args=args), data=comment_form
-    ).status_code == 302
+    ).status_code == HTTPStatus.FOUND
