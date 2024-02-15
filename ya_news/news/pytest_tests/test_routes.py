@@ -18,13 +18,13 @@ from pytest_lazyfixture import lazy_fixture
     'user_type, status',
     (
         (
-            (lazy_fixture('author_client'), HTTPStatus.OK),
+            (lazy_fixture('author_client'), 200),
             (lazy_fixture('client'), 302)
         )
     )
 )
 def test_comment_edit_is_accessable_for_author_but_not_anonymous(
-    user_type: Client, status: HTTPStatus | int,
+    user_type: Client, status: int,
     path: str, args: tuple
 ) -> None:
     """
@@ -48,13 +48,13 @@ def test_comment_edit_is_accessable_for_author_but_not_anonymous(
     'user_type, status',
     (
         (
-            (lazy_fixture('author_client'), HTTPStatus.OK),
+            (lazy_fixture('author_client'), 200),
             (lazy_fixture('client'), 302)
         )
     )
 )
 def test_comment_delete_is_accessable_for_author_but_not_anonymous(
-    user_type: Client, status: HTTPStatus | int,
+    user_type: Client, status: int,
     path: str, args: tuple
 ) -> None:
     """Тест доступности удаления комментария для автора,
