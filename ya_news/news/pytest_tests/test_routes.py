@@ -5,6 +5,7 @@ from pytest_django.asserts import assertRedirects
 from pytest_lazyfixture import lazy_fixture
 from http import HTTPStatus
 
+
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'path, args',

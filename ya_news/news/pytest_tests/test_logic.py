@@ -2,7 +2,6 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client
 from django.urls import reverse
-from pytest_lazyfixture import lazy_fixture
 from pytest_django.asserts import assertFormError, assertRedirects
 from django.utils import timezone
 from http import HTTPStatus
