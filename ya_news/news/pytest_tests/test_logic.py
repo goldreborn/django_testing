@@ -44,7 +44,7 @@ def test_authenticated_can_add_comment(
 
     response = author_client.post(url, data=comment_form)
 
-    assertRedirects(response, url)
+    assertRedirects(response, f'{url}#comments')
 
     assert Comment.objects.count() == 1
 
@@ -81,7 +81,7 @@ def test_author_can_edit_own_comments(
     )
 
     assertRedirects(
-        response, reverse('news:detail', args=news_pk),
+        response, f'{reverse('news:detail', args=news_pk)}#comments',
         status_code=HTTPStatus.FOUND
     )
 
