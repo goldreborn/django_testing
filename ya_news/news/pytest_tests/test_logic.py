@@ -78,9 +78,12 @@ def test_author_can_edit_own_comments(
     """Тест автор может изменять свои комментарии"""
     response = author_client.post(
         reverse('news:edit', args=comment_pk), data=comment_form
-    ).status_code=HTTPStatus.FOUND
+    )
 
-    assertRedirects(response, reverse('news:detail', args=news_pk))
+    assertRedirects(
+        response, reverse('news:detail', args=news_pk),
+        status_code=HTTPStatus.FOUND
+    )
 
     new_comment = Comment.objects.get()
 
