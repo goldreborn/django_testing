@@ -80,8 +80,10 @@ def test_author_can_edit_own_comments(
         reverse('news:edit', args=comment_pk), data=comment_form
     )
 
+    url = reverse('news:detail', args=news_pk)
+
     assertRedirects(
-        response, f'{reverse('news:detail', args=news_pk)}#comments',
+        response, f'{url}#comments',
         status_code=HTTPStatus.FOUND
     )
 
