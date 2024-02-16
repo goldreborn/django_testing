@@ -44,7 +44,7 @@ def test_authenticated_can_add_comment(
 
     response = author_client.post(url, data=comment_form)
 
-    assertRedirects(response, f'{url}#comments')
+    assertRedirects(response, url)
 
     assert Comment.objects.count() == 1
 
