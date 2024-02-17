@@ -118,6 +118,8 @@ def test_authorized_can_not_edit_other_comments(
         comment_pk: tuple, comment: Comment
 ) -> None:
     """Тест автор не может изменять чужие комментарии"""
+    initial_text = comment.text
+
     response = admin_client.post(
         reverse('news:edit', args=comment_pk), data=comment_form
     )
@@ -126,7 +128,7 @@ def test_authorized_can_not_edit_other_comments(
 
     comment.refresh_from_db()
 
-    assert comment.text != comment_form['text']
+    assert comment.text == initial_text
 
 
 @pytest.mark.django_db
