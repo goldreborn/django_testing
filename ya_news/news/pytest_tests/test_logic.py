@@ -73,7 +73,7 @@ def test_if_comment_contains_bad_words(author_client: Client, news_pk) -> None:
 @pytest.mark.django_db
 def test_author_can_edit_own_comments(
         author_client: Client, comment_pk: tuple,
-        comment_form: CommentForm, news_pk: tuple
+        comment_form: CommentForm, news_pk: tuple, comment: Comment
 ) -> None:
     """Тест автор может изменять свои комментарии"""
     response = author_client.post(
@@ -87,36 +87,57 @@ def test_author_can_edit_own_comments(
         status_code=HTTPStatus.FOUND
     )
 
-    new_comment = Comment.objects.get()
+    comment.refresh_from_db()
 
-    assert new_comment.text == comment_form['text']
+    assert comment.text == comment_form['text']
 
 
 @pytest.mark.django_db
 def test_author_can_delete_own_comments(
-        author_client: Client, comment_form: CommentForm, comment_pk: tuple
+        author_client: Client,
+        comment_pk: tuple, news_pk: tuple
 ) -> None:
     """Тест автор может удалять свои комментарии"""
-    assert author_client.post(
-        reverse('news:delete', args=comment_pk), data=comment_form
-    ).status_code == HTTPStatus.FOUND
+    response = author_client.delete(
+        reverse('news:delete', args=comment_pk)
+    )
+
+    url = reverse('news:detail', args=news_pk)
+
+    assertRedirects(
+        response, f'{url}#comments',
+        status_code=HTTPStatus.FOUND
+    )
+
+    assert Comment.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_author_can_not_edit_other_comments(
-        author_client: Client, comment_form: CommentForm, comment_pk: tuple
+def test_authorized_can_not_edit_other_comments(
+        admin_client: Client, comment_form: CommentForm,
+        comment_pk: tuple, comment: Comment
 ) -> None:
     """Тест автор не может изменять чужие комментарии"""
-    assert author_client.post(
+    response = admin_client.post(
         reverse('news:edit', args=comment_pk), data=comment_form
-    ).status_code == HTTPStatus.FOUND
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+    comment.refresh_from_db()
+
+    assert comment.text != comment_form['text']
 
 
 @pytest.mark.django_db
-def test_author_can_not_delete_other_comments(
-        author_client: Client, comment_form: CommentForm, comment_pk: tuple
+def test_authorized_can_not_delete_other_comments(
+        admin_client: Client, comment_pk: tuple
 ) -> None:
     """Тест автор не может удалять чужие комментарии"""
-    assert author_client.post(
-        reverse('news:delete', args=comment_pk), data=comment_form
-    ).status_code == HTTPStatus.FOUND
+    response = admin_client.delete(
+        reverse('news:delete', args=comment_pk)
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+    assert Comment.objects.count() == 1

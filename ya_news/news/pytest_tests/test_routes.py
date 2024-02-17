@@ -14,16 +14,26 @@ from http import HTTPStatus
         ('news:delete', lazy_fixture('comment_pk')),
     ),
 )
+@pytest.mark.parametrize(
+    'user_type, status',
+    (
+        (
+            (lazy_fixture('author_client'), HTTPStatus.OK),
+            (lazy_fixture('admin_client'), HTTPStatus.NOT_FOUND)
+        )
+    )
+)
 def test_comment_edit_delete_access_for_authorized_user(
-    author_client: Client, path: str, args: tuple
+    path: str, args: tuple,
+    user_type: Client, status: HTTPStatus
 ) -> None:
     """
     Тест доступности удаления и изменения комментария
     для авторизованного клиента
     """
-    assert author_client.get(
+    assert user_type.get(
         reverse(path, args=args)
-    ).status_code == HTTPStatus.OK
+    ).status_code == status
 
 
 @pytest.mark.django_db
